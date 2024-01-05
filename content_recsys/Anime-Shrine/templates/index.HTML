@@ -1,0 +1,158 @@
+<HTML>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- icons -->
+    <script src="https://kit.fontawesome.com/a7e5305de0.js" crossorigin="anonymous"></script>
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+
+    <title>Anime Shrine</title>
+</head>
+<style>
+    th, td {
+        padding: 5px;
+        text-align: center;
+        max-width: 250px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>
+<body
+    style="background-image: url({{url_for('static', filename = 'anime1.jpg')}}); background-size:cover; background-position:center; background-repeat:no-repeat; background-position:center center; background-repeat:no-repeat; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; background-attachment: fixed;">
+    <div class="row h-100">
+        <div class="col-sm-12 my-auto" style = "position: absolute;">
+            <div class="text-dark" style="padding-top: 10px; padding-left: 10px;">
+                <h3>History Rating</h3>
+                <table border=1 style="color: white;" align="left" class="bg-dark">
+                    <tr>
+                        <th>Movie ID</th>
+                        <th>Movie Name</th>
+                        <th>Rating</th>
+                    </tr>
+                {%if result1|length < 1 %}
+                    <tr>
+                        <td colspan="3" align="center" style = "color: gray">No result</td>
+                    </tr>
+                {%else%}
+                {% for value in result1 %}
+                    <tr>
+                        <td>{{ value[0] }}</td>
+                        <td>{{ value[1] }}</td>
+                        <td>{{ value[2] }}</td>
+                    </tr>
+                {% endfor %}
+                {% endif %}
+                </table>
+            </div>
+            {%if warning != None%}
+            <div class="container p-3 my-3 bg-transparent text-dark col-sm-5 rounded h-50" style = "text-align: center;">
+                <h5 style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">{{warning}}</h5>
+            </div>
+            {%endif%}
+            <form class="container p-3 my-3 bg-transparent text-dark col-sm-5 rounded h-50" action="/get_history" method="post">
+                <div style="padding-top: 10px;"></div>
+                <div class="form-group card-block w-30 mx-auto">
+                    <label for="user_id"><strong>User ID</strong></label>
+                    <input type="number" class="form-control" id="user_id" name="user_id" aria-describedby="emailHelp"
+                        placeholder="Enter user ID">
+                </div>
+                <div class="card card-block w-25 mx-auto bg-dark">
+                    <button type="submit" style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">Get History</button>
+                </div>
+            </form>
+            <form class="container p-3 my-3 bg-transparent text-dark col-sm-5 rounded h-50" action="/reset_history" method="post">
+                <div class="card card-block w-25 mx-auto bg-dark">
+                    <button type="submit" style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">Reset History</button>
+                </div>
+            </form>
+            <form class="container p-3 my-3 bg-transparent text-dark col-sm-5 rounded h-50" action="/" method="post">
+                <div style="padding-top: 10px;"></div>
+                <div class="form-group card-block w-30 mx-auto">
+                    <label for="id"><strong>Movie ID</strong></label>
+                    <input type="number" class="form-control" id="id" name="id" aria-describedby="emailHelp"
+                        placeholder="Enter movie ID">
+                </div>
+                <div class="form-group card-block w-30 mx-auto">
+                    <label for="action"><strong>Actions</strong></label>
+                    <select id="action" name="action" class = "form-control">
+                        <option value="" disabled selected>Select action</option>
+                        <option value="hover">Hover on</option>
+                        <option value="suggest">Click on Suggestion</option>
+                        <option value="score">Give score</option>
+                        <option value="like">Like</option>
+                        <option value="dislike">Dislike</option>
+                        <option value="comment">Comment</option>
+                        <option value="view">Watch time</option>
+                        </select>
+                </div>
+                <div class="form-group card-block w-30 mx-auto">
+                    <label for="description"><strong>Description</strong></label>
+                    <input type="number" class="form-control" id="description" name="description" aria-describedby="emailHelp"
+                        placeholder="Enter description">
+                </div>
+                <div style="padding-top: 50px;"></div>
+                <div class="card card-block w-25 mx-auto bg-dark">
+                    <button type="submit" style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">Display Recommendation</button>
+                </div>
+            </form>
+            <div style="padding-top: 10px;"></div>
+            <form class="container p-3 my-3 bg-transparent text-dark col-sm-5 rounded h-50" action="/feedback" method="post">
+                <div style="padding-top: 10px;"></div>
+                <div class="text-dark">
+                    <table border=1 style="color: white;" align="center" class="bg-dark">
+                        <tr>
+                            <th> Movie ID </th>
+                            <th> Movie Name </th>
+                        </tr>
+                        {%if result|length < 1 %}
+                            <tr>
+                                <td colspan = '2' align="center" style = "color: gray">No result</td>
+                            </tr>
+                        {%else%}
+                        {% for value in result %}
+                        {% if value[2] == 0 %}
+                        <tr>
+                            <td> {{ value[0] }} </td>
+                            <td> {{ value[1] }} </td>
+                        </tr>
+                        {%else%}
+                        <tr style = "background-color: pink; color: black;">
+                            <td> {{ value[0] }} </td>
+                            <td> {{ value[1] }} </td>
+                        </tr>
+                        {%endif%}
+                        {% endfor %}
+                        {%endif%}
+                    </table>
+                </div>
+                <div style="text-align: center;"><label for="id"><strong>Is this helpful?</strong></label></div>
+                
+                <div class="card card-block w-25 mx-auto bg-dark">
+                    <button type="submit" style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">Yes</button>
+                </div>
+                <div style = "padding-top: 10px;"></div>
+                <div class="card card-block w-25 mx-auto bg-dark">
+                    <button type="submit" style = "padding: 10px 10px; border: none; color: white; background-color:chocolate">No</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</body>

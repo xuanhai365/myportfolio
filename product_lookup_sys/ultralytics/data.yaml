@@ -1,0 +1,3 @@
+train: /workspace/process_data/train
+val: /workspace/process_data/test
+nc: 1

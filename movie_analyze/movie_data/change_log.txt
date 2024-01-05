@@ -1,0 +1,20 @@
+---------- 2/8/2023 ---------------------------------------------------
+## Delete description column
+
+## Add Id column
+
+## Standardize Gerne column
+# Separate every type of Gerne into rows, take the Id and Gerne columns.
+# Take unique values of Gerne column, create Gerne table.
+# Use Id, data in Gerne table and vlookup to create movie_gerne table.
+
+## Modify the runtime column, eliminate the word 'min' and change data type to number
+
+## Standardize Stars column
+# Separate every star's names into rows by comma, then remove unwanted characters by using Remove Duplicate and Replace
+# Remove empty rows by stars column, then take unique value to create stars table.
+# Use Id, data in stars table and vlookup to create movie_stars table.
+
+## Remove comma in votes, empty cells with $ sign.
+
+## Remove unwanted characters in director column using Replace
