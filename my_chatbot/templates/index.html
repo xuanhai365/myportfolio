@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>My Chatbot with Azure</title>
+    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+</head>
+<body>
+    <div class="heading">
+        <a class='button' href='/'>Home</a>
+        <a class='button' target="_blank" href='https://github.com/xuanhai365'>My Portfolio</a>
+        <a class='button' target="_blank" href='https://www.linkedin.com/in/xuanhai365/'>My LinkedIn</a>
+    </div>
+    <div id='chatbox'>
+        {% if queries == [] %}
+            <p class='query' id='bot'>
+                Hi there! I'm a chatbot. Ask me anything!
+            </p>
+        {% else %}
+        {% for query in queries %}
+            {% if query[0] == 'user' %}
+                <p class='query' id='user'>
+                    {{ query[1] }}
+                </p>
+            {% else %}
+                <p class='query' id='bot'>
+                    {%for word in query[1]%}
+                    {%if word[1]==-1%}
+                        <br>
+                    {%else%}
+                        {%if word[1]==2%}
+                            <span class="bbold">{{ word[0] }}</span>
+                        {%else%}
+                            {%if word[1]==1%}
+                                <b>{{ word[0] }}</b>
+                            {%else%}
+                                {{ word[0] }}
+                            {%endif%}
+                        {%endif%}
+                    {%endif%}
+                {% endfor %}</p>
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+    </div>
+    <form action="{{ url_for('search') }}" method='post'>
+        <input class='input' type="text" name="query" placeholder="Your prompt here" required>
+        <input class='search' type="submit" value="Search">
+    </form>
+</body>
+</html>

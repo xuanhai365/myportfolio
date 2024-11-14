@@ -1,0 +1,7 @@
+azure-common==1.1.28
+azure-core==1.30.2
+azure-identity==1.17.1
+azure-search-documents==11.6.0b4
+azure-storage-blob==12.22.0
+Flask==3.0.3
+openai==1.43.0
