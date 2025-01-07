@@ -1,6 +1,6 @@
-terraform/variables.tf
 venv
-terraform/.terraform
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/terraform.tfvars
+**/variables.tf
+**/.terraform
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/terraform.tfvars
