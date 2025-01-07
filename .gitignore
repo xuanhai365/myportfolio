@@ -1,0 +1,7 @@
+**/.dockerignore
+**/Dockerfile
+**/.env
+**/k8s_mychatbot.yaml
+**/venv
+**/variables.tf
+**/terraform.tfvars

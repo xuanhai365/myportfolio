@@ -1,4 +1,0 @@
-.dockerignore
-Dockerfile
-**/.env
-k8s_mychatbot.yaml
