@@ -1,2 +1,3 @@
 ./terraform/variables.tf
 ./venv
+./terraform/.terraform
