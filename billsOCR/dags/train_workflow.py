@@ -98,38 +98,44 @@ with DAG('train_pipeline',
         task_id='create_ssh_conn',
         python_callable=create_ssh_conn
     )
-    get_source = SSHOperator(
-        task_id = "get_source",
+    setup_env = SSHOperator(
+        task_id = "setup_env",
         command = f"""
             export ACCESS_KEY={ACCESS_KEY} && export SECRET_KEY={SECRET_KEY} && export REGION={REGION} && \
-            sudo yum install git-all && \
+            sudo yum -y install git-all && \
+            sudo yum -y install python3-pip && \
+            pip install --upgrade pip && \
             git clone https://github.com/xuanhai365/myportfolio.git && \
-            cd myportfolio/billsOCR
+            cd ./myportfolio/billsOCR/docker_setup/train && pip install -r requirements.txt
             """,
         ssh_conn_id=conn_id,
-        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
+        cmd_timeout=None
     )
     get_data = SSHOperator(
         task_id="get_data",
-        command=f'cd ./dataset && python db_retrieve.py --s3_bucket {S3_BUCKET} && cd ../',
-        ssh_conn_id='ec2_ssh',
-        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+        command=f'cd ./myportfolio/billsOCR/dataset && python3 db_retrieve.py --s3_bucket {S3_BUCKET}',
+        ssh_conn_id=conn_id,
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
+        cmd_timeout=None
     )
     get_model = SSHOperator(
         task_id="get_model",
-        command=f'cd ./model && python get_model.py --s3_bucket {S3_BUCKET} && cd ../',
+        command=f'cd ./myportfolio/billsOCR/model && python3 get_model.py --s3_bucket {S3_BUCKET}',
         ssh_conn_id=conn_id,
-        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
+        cmd_timeout=None
     )
     train_model = SSHOperator(
         task_id="train_model",
-        command='cd ./model/FAST && pip install -r requirements.txt && CUDA_VISIBLE_DEVICES=0 python train.py config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py && cd ../',
-        ssh_conn_id='ec2_ssh',
-        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+        command='cd ./myportfolio/billsOCR/model/FAST && pip install -r requirements.txt && CUDA_VISIBLE_DEVICES=0 python3 train.py config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py',
+        ssh_conn_id=conn_id,
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
+        cmd_timeout=None
     )
     clean_up = PythonOperator(
         task_id='clean_up',
         python_callable=clean_everything,
         trigger_rule='all_done'
     )
-    create_ec2_boto3 >> create_ssh >> get_source >> get_data >> get_model >> clean_up
+    create_ec2_boto3 >> create_ssh >> setup_env >> get_data >> get_model >> clean_up
