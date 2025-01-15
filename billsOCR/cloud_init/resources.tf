@@ -20,10 +20,10 @@
 #    vpc_id = "${aws_vpc.bills_vpc.id}"
 #    cidr_block = element(var.private_sub, count.index)
 #}
-resource "random_password" "bills_password" {
-  length           = 16
-  special          = false
-}
+#resource "random_password" "bills_password" {
+#  length           = 16
+#  special          = false
+#}
 #resource "aws_security_group" "bills_security" {
 #  vpc_id      = "${aws_vpc.bills_vpc.id}"
 #  name        = "billsocr_security"
@@ -35,20 +35,20 @@ resource "random_password" "bills_password" {
 #    cidr_blocks = ["0.0.0.0/0"]
 #  }
 #}
-resource "aws_db_instance" "default" {
-  allocated_storage = 10
-  db_name = "billsOCR"
-  engine = "postgres"
-  instance_class = "db.t3.micro"
-  skip_final_snapshot = true
-  publicly_accessible = true
-  username = "bills"
-  password = random_password.bills_password.result
+#resource "aws_db_instance" "default" {
+#  allocated_storage = 10
+#  db_name = "billsOCR"
+#  engine = "postgres"
+#  instance_class = "db.t3.micro"
+#  skip_final_snapshot = true
+#  publicly_accessible = true
+#  username = "bills"
+#  password = random_password.bills_password.result
 #    vpc_security_group_ids = [aws_security_group.bills_security.id]
 #    db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
-}
-resource "aws_s3_bucket" "model_data"{
-  bucket = "billsocr-model-data"
+#}
+resource "aws_s3_bucket" "train_materials"{
+  bucket = "train-materials"
   force_destroy = true
 }
 #resource "mongodbatlas_project" "bills_project" {

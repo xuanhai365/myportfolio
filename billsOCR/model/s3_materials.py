@@ -5,7 +5,7 @@ import shutil
 from dotenv import load_dotenv
 import os
 
-load_dotenv('/sources/.env')
+load_dotenv()
 ACCESS_KEY = os.getenv('ACCESS_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
 REGION = os.getenv('REGION')
@@ -21,6 +21,6 @@ class ModelMaterials:
         os.remove(self.model_repo)
     def pull_model_repo(self):
         self.s3.download_file(self.s3_bucket, self.model_repo, self.model_repo)
-        with zipfile.ZipFile('model_repo.zip', 'r') as zip_ref:
-            zip_ref.extractall('model_repo')
-        os.remove('model_repo.zip')
+        with zipfile.ZipFile(self.model_repo, 'r') as zip_ref:
+            zip_ref.extractall(self.model_repo.split('.')[0])
+        os.remove(self.model_repo)

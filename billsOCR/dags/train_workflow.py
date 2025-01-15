@@ -1,5 +1,4 @@
 from airflow import DAG
-import boto3.resources
 from airflow.operators.python import BranchPythonOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
@@ -11,13 +10,15 @@ from datetime import datetime
 import boto3
 from dotenv import load_dotenv
 import os
+import shutil
 
-load_dotenv('/sources/.env')
+load_dotenv()
 ACCESS_KEY = os.getenv('ACCESS_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
 REGION = os.getenv('REGION')
+S3_BUCKET = os.getenv('S3_BUCKET')
 
-key_dir = '/opt/airflow/train_ec2_key.pem'
+key_dir = 'train_ec2_key.pem'
 conn_id = 'ec2_ssh'
     
 def create_ec2(**kwargs):
@@ -43,7 +44,7 @@ def create_ec2(**kwargs):
     instance.create_tags(Tags=[{"Key": "Name", "Value": "train_instance"}])
     ti = kwargs['ti']
     ti.xcom_push(key='public_dns', value=instance.public_dns_name)
-
+    
 def create_ssh_conn():
     session = settings.Session()
     conn = session.query(Connection).filter(Connection.conn_id == conn_id).first()
@@ -61,7 +62,7 @@ def create_ssh_conn():
     session.add(conn)
     session.commit()
 
-def clean_up_ec2():
+def clean_everything():
     ec2_client = boto3.client('ec2', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY, region_name=REGION)
     key_pairs = ec2_client.describe_key_pairs()
     for key in key_pairs['KeyPairs']:
@@ -80,11 +81,15 @@ def clean_up_ec2():
                 instance_ids.append(instance['InstanceId'])
         ec2_client.terminate_instances(InstanceIds=instance_ids)
     os.remove(key_dir)
+    shutil.rmtree('../dataset/data/det_dataset')
+    shutil.rmtree('../dataset/data/recog_dataset')
+    shutil.rmtree('..model/FAST')
+
 
 with DAG('train_pipeline',
-         start_date=datetime(2025, 1, 1),
+         start_date=datetime.now(),
          schedule='@daily',
-         catchup=True) as dag:
+         catchup=False) as dag:
     create_ec2_boto3 = PythonOperator(
         task_id='create_ec2_boto3',
         python_callable=create_ec2
@@ -93,28 +98,38 @@ with DAG('train_pipeline',
         task_id='create_ssh_conn',
         python_callable=create_ssh_conn
     )
+    get_source = SSHOperator(
+        task_id = "get_source",
+        command = f"""
+            export ACCESS_KEY={ACCESS_KEY} && export SECRET_KEY={SECRET_KEY} && export REGION={REGION} && \
+            sudo yum install git-all && \
+            git clone https://github.com/xuanhai365/myportfolio.git && \
+            cd myportfolio/billsOCR
+            """,
+        ssh_conn_id=conn_id,
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+    )
+    get_data = SSHOperator(
+        task_id="get_data",
+        command=f'cd ./dataset && python db_retrieve.py --s3_bucket {S3_BUCKET} && cd ../',
+        ssh_conn_id='ec2_ssh',
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+    )
     get_model = SSHOperator(
         task_id="get_model",
-        command='cd /opt/airflow/model && python get_model.py --s3_bucket my_bucket',
+        command=f'cd ./model && python get_model.py --s3_bucket {S3_BUCKET} && cd ../',
         ssh_conn_id=conn_id,
-        #ssh_hook=SSHHook(conn_id, remote_host=""),
+        remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
+    )
+    train_model = SSHOperator(
+        task_id="train_model",
+        command='cd ./model/FAST && pip install -r requirements.txt && CUDA_VISIBLE_DEVICES=0 python train.py config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py && cd ../',
+        ssh_conn_id='ec2_ssh',
         remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
     )
     clean_up = PythonOperator(
-        task_id='clean_up_ec2',
-        python_callable=clean_up_ec2,
+        task_id='clean_up',
+        python_callable=clean_everything,
         trigger_rule='all_done'
     )
-    #get_data = SSHOperator(
-    #    task_id="get_data",
-    #    command='cd ../dataset && python db_retrieve.py --s3_bucket my_bucket',
-    #    ssh_conn_id='ec2_ssh',
-    #    remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
-    #)
-    #train_model = SSHOperator(
-    #    task_id="train_model",
-    #    command='cd ../model/FAST && pip install -r requirements.txt && CUDA_VISIBLE_DEVICES=0 python train.py config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py',
-    #    ssh_conn_id='ec2_ssh',
-    #    remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}"
-    #)
-    create_ec2_boto3 >> create_ssh >> get_model >> clean_up
+    create_ec2_boto3 >> create_ssh >> get_source >> get_data >> get_model >> clean_up

@@ -7,7 +7,7 @@ def main():
     args = parser.parse_args()
 
     model_materials = ModelMaterials(args.s3_bucket)
-    model_materials.pull_model_repo()
+    model_materials.push_model_repo()
 
 if __name__ == '__main__':
     main()
