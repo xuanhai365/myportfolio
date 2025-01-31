@@ -1,0 +1,7 @@
+services:
+  FAST:
+    image: xuanhai365/model
+    volumes:
+      - ./dataset/data/det_dataset:/det_dataset
+      - ./dataset/data/recog_dataset:/recog_dataset
+    command: python train.py config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py --worker=0

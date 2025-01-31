@@ -1,0 +1,12 @@
+**/.dockerignore
+**/Dockerfile
+**/.env
+**/k8s_mychatbot.yaml
+**/venv
+**/terraform.tfvars
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfstate.backup
+**/terraform.tfstate
+**/*.pem
+**/logs
