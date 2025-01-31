@@ -11,3 +11,4 @@
 **/*.pem
 **/logs
 **/weights
+**/pretrained
