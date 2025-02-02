@@ -7,7 +7,7 @@ ALL THIS REPOSITORY HAVE:
    - Text classifier: [CRNN (EasyOCR)](https://github.com/JaidedAI/EasyOCR)
      
 **2. RAG Chatbot** (https://github.com/xuanhai365/myportfolio/tree/main/storeChatbot)
-   - Azure documentation: https://github.com/Azure-Samples/azure-search-openai-demo-csharp
+   - [Azure documentation](https://github.com/Azure-Samples/azure-search-openai-demo-csharp)
      
 **3. Retail One-shot Detector** (https://github.com/xuanhai365/myportfolio/tree/main/retailRetrieval)
    - [YOLOv8](https://github.com/ultralytics/ultralytics)
