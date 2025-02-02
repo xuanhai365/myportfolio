@@ -21,4 +21,4 @@ ALL THIS REPOSITORY HAVE:
    - Customer churn by user activities: https://github.com/xuanhai365/myportfolio/tree/main/customerChurn
    - Gender classifier by front face images: https://github.com/xuanhai365/myportfolio/tree/main/genderClassifier
      
-**6. Hands-on algorithms:** https://github.com/xuanhai365/myportfolio/tree/main/handsOnAlgs - https://github.com/xuanhai365/myportfolio/tree/main/customerChurn
+**6. Hands-on algorithms:** https://github.com/xuanhai365/myportfolio/tree/main/handsOnAlgs - [https://github.com/xuanhai365/myportfolio/tree/main/customerChurn](https://github.com/xuanhai365/myportfolio/tree/main/contentRecSys)
