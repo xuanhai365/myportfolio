@@ -14,6 +14,8 @@
 **3. Retail One-shot Detector** (https://github.com/xuanhai365/myportfolio/tree/main/retailRetrieval)
    - [YOLOv8](https://github.com/ultralytics/ultralytics)
    - [ORB](https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html)
+
+![Retail workflow](https://github.com/xuanhai365/myportfolio/blob/main/retailRetrieval/workflow_retail.png)
      
 **4. Tabular data analyze**
    - Game analyze: [Link](https://github.com/xuanhai365/myportfolio/tree/main/gameAnalyze)
