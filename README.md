@@ -1,6 +1,6 @@
-HAI NGUYEN XUAN'S PORTFOLIO PAGE
+**HAI NGUYEN XUAN'S PORTFOLIO PAGE**
 
-ALL THIS REPOSITORY HAVE:
+**ALL THIS REPOSITORY HAVE:**
 
 **1. Grocery Bills OCR** (https://github.com/xuanhai365/myportfolio/tree/main/billsOCR)
    - Text detector: [FAST](https://github.com/czczup/FAST)
