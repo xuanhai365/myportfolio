@@ -5,6 +5,7 @@
 **1. Grocery Bills OCR** (https://github.com/xuanhai365/myportfolio/tree/main/billsOCR)
    - Text detector: [FAST](https://github.com/czczup/FAST)
    - Text classifier: [CRNN (EasyOCR)](https://github.com/JaidedAI/EasyOCR)
+
 ![BillsOCR workflow](https://github.com/xuanhai365/myportfolio/blob/main/billsOCR/workflow.png?raw=true)
 
 **2. RAG Chatbot** (https://github.com/xuanhai365/myportfolio/tree/main/storeChatbot)
