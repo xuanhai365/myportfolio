@@ -10,6 +10,8 @@
 
 **2. RAG Chatbot** (https://github.com/xuanhai365/myportfolio/tree/main/storeChatbot)
    - [Azure documentation](https://github.com/Azure-Samples/azure-search-openai-demo-csharp)
+
+![Chatbot workflow from Azure](https://github.com/xuanhai365/myportfolio/blob/main/storeChatbot/workflow_chatbot.png)
      
 **3. Retail One-shot Detector** (https://github.com/xuanhai365/myportfolio/tree/main/retailRetrieval)
    - [YOLOv8](https://github.com/ultralytics/ultralytics)
