@@ -106,3 +106,4 @@ class billsOCR():
         with open(os.path.join(output, data['img_metas']['filename'] + '.txt'), 'w') as f:
             for text in results:
                 f.write(f'{text}\n')
+        return results

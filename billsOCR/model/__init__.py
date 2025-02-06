@@ -1,1 +1,0 @@
-from clean_up import clean as model_clean

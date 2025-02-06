@@ -14,6 +14,7 @@ import os
 load_dotenv()
 ACCESS_KEY = os.getenv('ACCESS_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
+MLFLOW_URI = os.getenv('MLFLOW_URI')
 REGION = os.getenv('REGION')
 S3_BUCKET = os.getenv('S3_BUCKET')
 
@@ -34,8 +35,12 @@ def create_ec2(**kwargs):
     instances = ec2.create_instances(
         BlockDeviceMappings=[
             {
-                'DeviceName':'xvdh',
-                'Ebs': {'VolumeSize': 30}
+                'DeviceName':'/dev/xvda',
+                'Ebs': {
+                    'VolumeSize': 32,
+                    'VolumeType': 'gp3',
+                    'Throughput': 512
+                }
             }
         ],
         ImageId='ami-0bd55ebedabddc3c0',
@@ -102,12 +107,12 @@ with DAG('train_pipeline',
     setup_env = SSHOperator(
         task_id = "setup_env",
         command = f"""sudo yum -y install unzip && \
-        sudo yum -y install docker && \
-        sudo service docker start && \
-        sudo usermod -a -G docker ec2-user && \
-        
-        sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && \
-        sudo chmod +x /usr/local/bin/docker-compose && \
+        sudo yum -y install git-all && \
+        sudo yum -y install python-pip && \
+        git clone https://github.com/xuanhai365/myportfolio.git && cd ./myportfolio/billsOCR/model && \
+        pip install mmcv==2.2.0 -f https://download.openmmlab.com/mmcv/dist/cu121/torch2.3/index.html && \
+        pip install -r requirements.txt && \
+        sh compile.sh && \
         aws configure set aws_access_key_id {ACCESS_KEY} && \
         aws configure set aws_secret_access_key {SECRET_KEY} && \
         aws configure set region {REGION}""",
@@ -117,16 +122,20 @@ with DAG('train_pipeline',
     )
     get_train_materials = SSHOperator(
         task_id="get_train_materials",
-        command=f"""nvidia-smi && \
-        aws s3 cp s3://{S3_BUCKET} . --recursive && \
-        mkdir -p ./dataset/data && unzip ./dataset.zip -d ./dataset/data""",
+        command=f"""aws s3 cp s3://{S3_BUCKET} . --recursive && \
+        unzip ./dataset.zip && \
+        mv -r ./FAST/pretrained ./myportfolio/billsOCR/model/FAST && \
+        mv -r ./CRNN/pretrained ./myportfolio/billsOCR/model/EasyOCR && \
+        mv -r ./weights ./myportfolio/billsOCR/model""",
         ssh_conn_id=conn_id,
         remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
         cmd_timeout=None
     )
     train_model = SSHOperator(
         task_id="train_model",
-        command="""docker-compose up -d""",
+        command=f"""export MLFLOW_URI={MLFLOW_URI} && \
+        export S3_BUCKET={S3_BUCKET} && \
+        cd ./myportfolio/billsOCR/model && python fast_train.py FAST/config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py --worker=0""",
         ssh_conn_id=conn_id,
         remote_host="{{ ti.xcom_pull(task_ids='create_ec2_boto3', key='public_dns') }}",
         cmd_timeout=None
