@@ -64,7 +64,7 @@ class FASTHead(nn.Module):
     def get_results(self, out, img_meta, cfg, scale=2):
         
         if not self.training:
-            torch.cuda.synchronize()
+            #torch.cuda.synchronize()
             start = time.time()
 
         org_img_size = img_meta['org_img_size'][0]
@@ -97,7 +97,7 @@ class FASTHead(nn.Module):
         keys = [torch.unique(labels_[i], sorted=True) for i in range(batch_size)]
 
         if not self.training:
-            torch.cuda.synchronize()
+            #torch.cuda.synchronize()
             outputs.update(dict(
                 post_time=time.time() - start
             ))

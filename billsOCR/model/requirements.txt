@@ -21,3 +21,6 @@ boto3
 psycopg2-binary
 python-dotenv
 pynvml
+numpy==1.26.4
+scipy
+python-multipart

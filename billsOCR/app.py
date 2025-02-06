@@ -3,13 +3,14 @@ import uvicorn
 from model.inference import billsOCR
 
 app = FastAPI()
+model = billsOCR()
 # Define API endpoints
 @app.post("/infer")
 async def infer(image: UploadFile):
     image_data = await image.read()
     # Prediction logic (partial)
-    predictions = billsOCR.inference(image_data, output='./output')
-    return predictions
+    predictions = model.inference(image_data, output='./output')
+    return {'result': predictions}
 @app.get("/health")
 async def health():
     return {"message": "ok"}

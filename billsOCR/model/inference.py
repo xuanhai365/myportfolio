@@ -1,7 +1,7 @@
 import os
 from mmengine.config import Config
-from FAST import build_model, fuse_module, rep_model_convert, scale_aligned_short
-from EasyOCR import Reader, reformat_input
+from .FAST import build_model, fuse_module, rep_model_convert, scale_aligned_short
+from .EasyOCR import Reader, reformat_input
 import torch
 from torchvision import transforms
 import logging
@@ -10,25 +10,26 @@ import numpy as np
 import cv2
 from PIL import Image
 import shutil
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class billsOCR():
     def __init__(self):
         # Load EasyOCR recognitor
         self.reader = Reader(['en'], recog_network='my_model', model_storage_directory='./weights', detector=False)
 
         # Load FAST detector
-        self.fast_cfg = Config.fromfile('./FAST/config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py')
+        self.fast_cfg = Config.fromfile('./model/FAST/config/fast/ic15/fast_tiny_ic15_736_finetune_ic17mlt.py')
         fast_cp_dir = './weights/checkpoint.pth.tar'
         # Build model
         self.fast_model = build_model(self.fast_cfg.model)
-        self.fast_model = self.fast_model.cuda()
+        self.fast_model = self.fast_model.to(device)
         #Load checkpoint
         if fast_cp_dir is not None:
             if os.path.isfile(fast_cp_dir):
                 print("Loading model and optimizer from checkpoint '{}'".format(fast_cp_dir))
                 logging.info("Loading model and optimizer from checkpoint '{}'".format(fast_cp_dir))
                 sys.stdout.flush()
-                checkpoint = torch.load(fast_cp_dir)
+                #checkpoint = torch.load(fast_cp_dir)
+                checkpoint = torch.load(fast_cp_dir, map_location=torch.device('cpu'))
                 state_dict = checkpoint['state_dict']
                 d = dict()
                 for key, value in state_dict.items():
@@ -43,7 +44,7 @@ class billsOCR():
         self.fast_model = fuse_module(self.fast_model)
 
     def FAST_detect(self, data):
-        data['imgs'] = data['imgs'].cuda(non_blocking=True)
+        data['imgs'] = data['imgs'].to(device, non_blocking=True)
         data.update(dict(cfg=self.fast_cfg))
         # forward
         self.fast_model.eval()
@@ -87,7 +88,8 @@ class billsOCR():
                     img_path = os.path.join(source, file)
                     func(self, img_path, output)
             else:
-                func(self, source, output)
+                preds = func(self, source, output)
+                return preds
         return wrapper
 
     @inference_method

@@ -2,15 +2,15 @@ model = dict(
     type='FAST',
     backbone=dict(
         type='fast_backbone',
-        config='FAST/config/fast/nas-configs/fast_tiny.config'
+        config='./model/FAST/config/fast/nas-configs/fast_tiny.config'
     ),
     neck=dict(
         type='fast_neck',
-        config='FAST/config/fast/nas-configs/fast_tiny.config'
+        config='./model/FAST/config/fast/nas-configs/fast_tiny.config'
     ),
     detection_head=dict(
         type='fast_head',
-        config='FAST/config/fast/nas-configs/fast_tiny.config',
+        config='./model/FAST/config/fast/nas-configs/fast_tiny.config',
         pooling_size=9,
         dropout_ratio=0.1,
         loss_text=dict(
