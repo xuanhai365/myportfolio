@@ -42,24 +42,24 @@ resource "random_password" "db_password" {
 ### AWS RDS setup
 resource "aws_db_instance" "mlflow_backend" {
   allocated_storage = 10
-  db_name = "billsocr-mlflow"
+  db_name = "billsocr_mlflow"
   engine = "postgres"
   instance_class = "db.t3.micro"
   skip_final_snapshot = true
   publicly_accessible = true
-  username = "mlflow-backend"
+  username = "mlflow_backend"
   password = random_password.db_password.result
 #  vpc_security_group_ids = [aws_security_group.bills_security.id]
 #  db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
 }
-resource "aws_db_instance" "transaction_db" {
+resource "aws_db_instance" "item_db" {
   allocated_storage = 10
-  db_name = "billsocr-transaction"
+  db_name = "billsocr_item"
   engine = "postgres"
   instance_class = "db.t3.micro"
   skip_final_snapshot = true
   publicly_accessible = true
-  username = "transaction"
+  username = "item_db"
   password = random_password.db_password.result
 }
 

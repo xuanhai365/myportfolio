@@ -12,13 +12,13 @@ output "mlflow_uri" {
 }
 ### Transaction data
 output "transaction_endpoint" {
-    value = aws_db_instance.transaction_db.endpoint
+    value = aws_db_instance.item_db.endpoint
 }
 output "transaction_username" {
-    value = aws_db_instance.transaction_db.username
+    value = aws_db_instance.item_db.username
 }
 output "transaction_password" {
-    value = aws_db_instance.transaction_db.password
+    value = aws_db_instance.item_db.password
     sensitive = true
 }
 ### Train materials bucket

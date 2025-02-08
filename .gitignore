@@ -1,5 +1,4 @@
 **/.dockerignore
-**/Dockerfile
 **/.env
 **/k8s_mychatbot.yaml
 **/venv
@@ -12,3 +11,5 @@
 **/logs
 **/weights
 **/pretrained
+**/data
+**/output
