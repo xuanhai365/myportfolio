@@ -10,7 +10,8 @@ async def infer(image: UploadFile):
     image_data = await image.read()
     # Prediction logic (partial)
     predictions = model.inference(image_data, output='./output')
-    return {'result': predictions}
+    str_pred = [pred[1] for pred in predictions]
+    return {'bill_content': ' '.join(str_pred)}
 @app.get("/health")
 async def health():
     return {"message": "ok"}

@@ -9,7 +9,7 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--name', type=str, help = 'huggingface data name', required=True)
+    parser.add_argument('--name', type=str, help = 'huggingface data name', default='naver-clova-ix/cord-v2')
     parser.add_argument('--split', type=str, help = 'split name', default=[], nargs='+', required=True)
     parser.add_argument('--det_dir', type=str, help = 'detection dataset directory', default='./det_dataset')
     parser.add_argument('--recog_dir', type=str, help = 'recognition dataset directory', default='./recog_dataset')
@@ -45,15 +45,15 @@ def main():
                         cordinate = np.maximum(cordinate, 0)
                         for cor in cordinate:
                             f.write(f'{cor},')
-                            f.write(f'{text}\n')
-
-                            crop_cor = [min(cordinate[0], cordinate[6]), min(cordinate[1], cordinate[3]),
-                                        max(cordinate[2], cordinate[4]), max(cordinate[5], cordinate[7])]
-                            save_img = img[crop_cor[1]:crop_cor[3], crop_cor[0]:crop_cor[2], :]
-                            save_img = Image.fromarray(save_img)
-                            save_img.save(os.path.join(recog_path, f'{save_id}.jpg'))
-                            labels.append([f'{save_id}.jpg', text])
-                            save_id += 1
+                            
+                        f.write(f'{text}\n')
+                        crop_cor = [min(cordinate[0], cordinate[6]), min(cordinate[1], cordinate[3]),
+                                    max(cordinate[2], cordinate[4]), max(cordinate[5], cordinate[7])]
+                        save_img = img[crop_cor[1]:crop_cor[3], crop_cor[0]:crop_cor[2], :]
+                        save_img = Image.fromarray(save_img)
+                        save_img.save(os.path.join(recog_path, f'{save_id}.jpg'))
+                        labels.append([f'{save_id}.jpg', text])
+                        save_id += 1
         df = pd.DataFrame(labels, columns = ['filename', 'words'])
         df.to_csv(os.path.join(recog_path, 'labels.csv'), index = False)
 

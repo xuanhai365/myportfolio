@@ -23,7 +23,7 @@ data "aws_security_group" "default" {
 #    vpc_id = "${aws_vpc.bills_vpc.id}"
 #    cidr_block = element(var.private_sub, count.index)
 #}
-resource "random_password" "bills_password" {
+resource "random_password" "db_password" {
   length           = 16
   special          = false
 }
@@ -38,23 +38,43 @@ resource "random_password" "bills_password" {
 #    cidr_blocks = ["0.0.0.0/0"]
 #  }
 #}
-resource "aws_db_instance" "train_log" {
+
+### AWS RDS setup
+resource "aws_db_instance" "mlflow_backend" {
   allocated_storage = 10
-  db_name = "billsocr_mlflow"
+  db_name = "billsocr-mlflow"
   engine = "postgres"
   instance_class = "db.t3.micro"
   skip_final_snapshot = true
   publicly_accessible = true
-  username = "bills"
-  password = random_password.bills_password.result
+  username = "mlflow-backend"
+  password = random_password.db_password.result
 #  vpc_security_group_ids = [aws_security_group.bills_security.id]
 #  db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
 }
-resource "aws_s3_bucket" "train_materials"{
+resource "aws_db_instance" "transaction_db" {
+  allocated_storage = 10
+  db_name = "billsocr-transaction"
+  engine = "postgres"
+  instance_class = "db.t3.micro"
+  skip_final_snapshot = true
+  publicly_accessible = true
+  username = "transaction"
+  password = random_password.db_password.result
+}
+
+### AWS S3 setup
+resource "aws_s3_bucket" "train_materials" {
   bucket = "train-materials"
   force_destroy = true
 }
-data "aws_ami" "host" {
+resource "aws_s3_bucket" "app_data" {
+  bucket = "raw-app-data"
+  force_destroy = true
+}
+
+### AWS EC2 setup
+data "aws_ami" "train_ami" {
   most_recent = true
   owners = ["amazon"]
 
@@ -67,9 +87,8 @@ data "aws_ami" "host" {
     values = ["al2023-ami-202*"]
   }
 }
-
-resource "aws_instance" "host" {
-  ami           = data.aws_ami.host.id
+resource "aws_instance" "train_instance" {
+  ami           = data.aws_ami.train_ami.id
   instance_type = "t2.micro"
   vpc_security_group_ids = [data.aws_security_group.default.id]
   root_block_device {
@@ -77,9 +96,23 @@ resource "aws_instance" "host" {
   }
   
   tags = {
-    Name = "host-machine"
+    Name = "train-instance"
   }
 }
+resource "aws_instance" "inference_instance" {
+  ami           = data.aws_ami.train_ami.id
+  instance_type = "t2.micro"
+  vpc_security_group_ids = [data.aws_security_group.default.id]
+  root_block_device {
+    volume_size = 16
+  }
+  
+  tags = {
+    Name = "inference-instance"
+  }
+}
+
+### MongoDB setup
 #resource "mongodbatlas_project" "bills_project" {
 #  org_id = var.atlas_org_id
 #  name = "billsdb"

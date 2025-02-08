@@ -23,16 +23,18 @@ class FAST(nn.Module):
     def forward(self, imgs, gt_texts=None, gt_kernels=None, training_masks=None,
                 gt_instances=None, img_metas=None, cfg=None):
         outputs = dict()
-
+        torch_cuda = torch.cuda.is_available()
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             start = time.time()
 
         # backbone
         f = self.backbone(imgs)
 
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             outputs.update(dict(
                 backbone_time=time.time() - start
             ))
@@ -42,7 +44,8 @@ class FAST(nn.Module):
         f = self.neck(f)
         
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             outputs.update(dict(
                 neck_time=time.time() - start
             ))
@@ -52,7 +55,8 @@ class FAST(nn.Module):
         det_out = self.det_head(f)
 
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             outputs.update(dict(
                 det_head_time=time.time() - start
             ))

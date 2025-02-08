@@ -62,9 +62,10 @@ class FASTHead(nn.Module):
         return x
 
     def get_results(self, out, img_meta, cfg, scale=2):
-        
+        torch_cuda = torch.cuda.is_available()
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             start = time.time()
 
         org_img_size = img_meta['org_img_size'][0]
@@ -97,7 +98,8 @@ class FASTHead(nn.Module):
         keys = [torch.unique(labels_[i], sorted=True) for i in range(batch_size)]
 
         if not self.training:
-            #torch.cuda.synchronize()
+            if torch_cuda:
+                torch.cuda.synchronize()
             outputs.update(dict(
                 post_time=time.time() - start
             ))
